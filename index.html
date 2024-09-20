@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <script  src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js" defer></script>
+    <title>Scatter Plot Graph</title>
+</head>
+<body>
+<h1 id="title">Scatter Graph</h1>    
+
+<div id="chart">
+    <svg id="scatterplot" width="800" height="400"></svg>
+</div>
+<div id="tooltip" class="hidden">
+    <!-- Tooltip content goes here -->
+</div>
+<div id="legend">
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: red;"></div> Riders with doping allegations
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: blue;"></div> Riders without doping allegations
+    </div>
+</div>
+
+
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+
+const width = 800;
+        const height = 400;
+        const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+
+	// Create an SVG element
+        const svg = d3.select("#scatterplot")
+            .attr("width", width)
+            .attr("height", height);
+
+	// Fetch and process the dataset
+        d3.json("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json")
+            .then(data => {
+                // Convert data to Date objects
+                data.forEach(d => {
+                    d.Year = new Date(d.Year.toString());
+                    d.Time = new Date("1970-01-01T00:" + d.Time.toString());
+                });
+
+	    // Add 1993 to the domain of xScale
+                const xScale = d3.scaleTime()
+                    .domain([new Date("1993-01-01"), d3.max(data, d => d.Year)])
+                    .range([margin.left, width - margin.right]);
+
+	    // Create scales for y-axis
+                const yScale = d3.scaleTime()
+                    .domain(d3.extent(data, d => d.Time))
+                    .range([height - margin.bottom, margin.top]);
+
+	    // Create and append x and y axes
+                const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%Y"));
+                const yAxis = d3.axisLeft(yScale).tickFormat(d3.timeFormat("%M:%S"));
+
+	        svg.append("g")
+                    .attr("id", "x-axis")
+                    .attr("transform", `translate(0, ${height - margin.bottom})`)
+                    .call(xAxis);
+
+                svg.append("g")
+                    .attr("id", "y-axis")
+                    .attr("transform", `translate(${margin.left}, 0)`)
+                    .call(yAxis);
+
+		// Create and append circles for the data points
+                svg.selectAll("circle")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("class", d => `dot ${d.Doping ? "doping" : "no-doping"}`)
+                    .attr("cx", d => xScale(d.Year))
+                    .attr("cy", d => yScale(d.Time))
+                    .attr("r", 5) // Radius of the circles
+                    .attr("data-xvalue", d => d.Year.toISOString())
+                    .attr("data-yvalue", d => d.Time.toISOString())
+                    .on("mouseover", handleMouseOver)
+                    .on("mouseout", handleMouseOut);
+            })
+	    .catch(error => console.error(error));
+
+	    // Function to show tooltip on mouseover
+            function handleMouseOver(event, d) {
+            const tooltip = d3.select("#tooltip");
+              tooltip.transition().duration(200).style("opacity", 0.9);
+              tooltip.html(`Year: ${d.Year.getFullYear()}<br>Time: ${d3.timeFormat("%M:%S")(d.Time)}<br>Name: ${d.Name}<br>${d.Doping ? "Doping Allegation: " + d.Doping : "No Doping Allegation"}`)
+                .attr("data-year", d.Year.toISOString())
+                .style("left", (event.pageX + 5) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        }
+
+	    // Function to hide tooltip on mouseout
+            function handleMouseOut() {
+              d3.select("#tooltip").transition().duration(500).style("opacity", 0);
+        }
+
+
+    </script>
+</body>
+</html>

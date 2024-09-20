@@ -1,0 +1,59 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#title {
+    text-align: center;
+}
+#chart {
+    text-align: center;
+}
+
+#scatterplot {
+    border: 1px solid #ddd;
+}
+
+.dot {
+    stroke: #333;
+    stroke-width: 1;
+}
+
+.dot.doping {
+    fill: red;
+}
+.dot.no-doping {
+    fill: blue;
+}
+
+.dot:hover {
+    cursor: pointer;
+}
+
+#tooltip {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+}
+
+#legend {
+    text-align: left;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
